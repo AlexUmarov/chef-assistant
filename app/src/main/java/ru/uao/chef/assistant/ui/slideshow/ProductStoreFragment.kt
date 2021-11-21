@@ -8,13 +8,12 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import ru.uao.chef.assistant.R
-import ru.uao.chef.assistant.databinding.FragmentSlideshowBinding
+import ru.uao.chef.assistant.databinding.FragmentProductStoreBinding
 
-class SlideshowFragment : Fragment() {
+class ProductStoreFragment : Fragment() {
 
-    private lateinit var slideshowViewModel: SlideshowViewModel
-    private var _binding: FragmentSlideshowBinding? = null
+    private lateinit var productStoreViewModel: ProductStoreViewModel
+    private var _binding: FragmentProductStoreBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -25,14 +24,14 @@ class SlideshowFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        slideshowViewModel =
-            ViewModelProvider(this).get(SlideshowViewModel::class.java)
+        productStoreViewModel =
+            ViewModelProvider(this).get(ProductStoreViewModel::class.java)
 
-        _binding = FragmentSlideshowBinding.inflate(inflater, container, false)
+        _binding = FragmentProductStoreBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val textView: TextView = binding.textSlideshow
-        slideshowViewModel.text.observe(viewLifecycleOwner, Observer {
+        productStoreViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
         return root

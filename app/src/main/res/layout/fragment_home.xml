@@ -6,17 +6,130 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/text_home"
+    <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="16dp"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/text_home"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:textAlignment="center"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btSpongeCakes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btSpongeCakesText" />
+
+        <Button
+            android:id="@+id/btTehCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btTehCardText" />
+
+        <!--<LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                &lt;!&ndash;<TextView
+                        android:text="Категория 1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/textView2" android:textSize="30sp"
+                        android:typeface="normal" app:fontFamily="sans-serif"/>
+                <Button
+                        android:text="Добавить продукт"
+                        android:layout_width="242dp"
+                        android:layout_height="wrap_content" android:id="@+id/btnAddGroupItem"/>&ndash;&gt;
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="241dp"
+                        android:id="@+id/linearLayout2">
+                    &lt;!&ndash;<TextView
+                            android:text="TextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:id="@+id/tvDocument"/>&ndash;&gt;
+
+                    &lt;!&ndash;<TableLayout
+                        android:id="@+id/tblGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="221dp">
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+                    </TableLayout>&ndash;&gt;
+                </LinearLayout>
+                <Button
+                        android:text="Удалить категорию"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/btnDeleteGroup"/>
+                <Button
+                        android:text="Создать категорию"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:id="@+id/btnAddGroup"/>
+
+                <EditText
+                    android:id="@+id/etGroupName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Group Name"
+                    android:inputType="textPersonName"
+                    android:minHeight="48dp" />
+
+                <EditText
+                    android:id="@+id/prodName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Product Name"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:id="@+id/prodWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Product Weight"
+                    android:inputType="textPersonName"
+                    android:minHeight="48dp" />
+
+                <EditText
+                    android:id="@+id/prodPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Produc Price"
+                    android:inputType="textPersonName"
+                    android:minHeight="48dp" />
+            </LinearLayout>-->
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
