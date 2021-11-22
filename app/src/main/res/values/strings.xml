@@ -12,4 +12,10 @@
     <string name="menu_produc_store">Product Store</string>
     <string name="btTehCardText">Tech Card</string>
     <string name="btSpongeCakesText">Sponge Cakes</string>
+    <string name="productNameHint">product name</string>
+    <string name="addProductInfoInfo">Add product</string>
+    <string name="setWeightProduct">set weight product</string>
+    <string name="setPriceProduct">set price</string>
+    <string name="productNameInfo">productNameInfo</string>
+    <string name="addProduct">add product</string>
 </resources>

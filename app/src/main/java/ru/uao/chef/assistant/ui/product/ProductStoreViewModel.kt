@@ -1,4 +1,4 @@
-package ru.uao.chef.assistant.ui.slideshow
+package ru.uao.chef.assistant.ui.product
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
