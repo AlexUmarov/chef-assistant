@@ -11,6 +11,8 @@
     <string name="email_text">email</string>
     <string name="login">Вход</string>
     <string name="registr">Регистрация</string>
+    <string name="qwerty">qwerty</string>
+    <string name="test_mail_ru">test@mail.ru</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_sponge_cakes">Cakes</string>
@@ -23,4 +25,5 @@
     <string name="setPriceProduct">set price</string>
     <string name="productNameInfo">productNameInfo</string>
     <string name="addProduct">add product</string>
+    <string name="btn_save_text">save</string>
 </resources>

@@ -2,28 +2,31 @@ package ru.uao.chef.assistant.ui.product
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import ru.uao.chef.assistant.MainActivity
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import ru.uao.chef.assistant.R
 import ru.uao.chef.assistant.databinding.FragmentProductStoreBinding
 import ru.uao.chef.assistant.ui.product.data.Product
 import ru.uao.chef.assistant.ui.product.view.ProductAdapter
+import kotlin.collections.ArrayList
 
 class ProductStoreFragment : Fragment() {
 
@@ -32,9 +35,13 @@ class ProductStoreFragment : Fragment() {
 
     private lateinit var addProductBtn: FloatingActionButton
     private lateinit var saveBtn: Button
-    private lateinit var productList: ArrayList<Product>
+    private lateinit var productDeleteList: ArrayList<Product>
+    private lateinit var productAddList: ArrayList<Product>
     private lateinit var productAdapter: ProductAdapter
     private lateinit var recv: RecyclerView
+
+    private lateinit var auth: FirebaseAuth
+    private var fireBase = Firebase.firestore
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -61,21 +68,92 @@ class ProductStoreFragment : Fragment() {
             textView.text = it
         })*/
 
+        FirebaseApp.initializeApp(root.context)
+        auth = FirebaseAuth.getInstance()
+
+
         addProductBtn = binding.addingProductBtn
         saveBtn = binding.BtnSave
-        productList = ArrayList()
+        productAddList = ArrayList()
+        productDeleteList = ArrayList()
         recv = binding.mRecycler
-        productAdapter = ProductAdapter(root.context, productList)
+        productAdapter = ProductAdapter(root.context, productAddList, productDeleteList)
         recv.layoutManager = LinearLayoutManager(root.context)
         recv.adapter = productAdapter
+        getWorkoutInfo()
         addProductBtn.setOnClickListener {
             addProduct(root.context)
         }
         saveBtn.setOnClickListener {
-
+            saveWorkoutInfo(root.context)
         }
 
         return root
+    }
+
+    private fun saveWorkoutInfo(context: Context) {
+        hideKeyboard()
+
+        productDeleteList?.forEach {
+            fireBase.collection(auth.currentUser?.email.toString())
+                .document("ProductStore")
+                .collection("current")
+                .document(it.productName)
+                .delete()
+                .addOnSuccessListener { documentReference ->
+                    Toast.makeText(
+                        context, "Document ${it.productName} successfully deleted!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener { documentReference ->
+                    Toast.makeText(
+                        context, "Error deleting document ${it.productName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            productDeleteList.clear()
+        }
+        productAddList.forEach {
+            fireBase.collection(auth.currentUser?.email.toString())
+                .document("ProductStore")
+                .collection("current")
+                .document(it.productName)
+                .set(it)
+                .addOnSuccessListener { documentReference ->
+                    Toast.makeText(
+                        context, "Add product: ${it.productName}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(
+                        context, "Error adding product: $e",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
+    }
+
+    private fun getWorkoutInfo() {
+        fireBase.collection(auth.currentUser?.email.toString())
+            .document("ProductStore")
+            .collection("current")
+            .get()
+            .addOnSuccessListener { result ->
+                productAddList.clear()
+                productDeleteList.clear()
+                for (document in result) {
+                    val w = Product(document.data["productName"].toString(),
+                        document.data["productWeight"].toString().toFloat(),
+                        document.data["productPrice"].toString().toFloat())
+                    productAddList.add(w)
+                }
+                productAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                Log.w(ContentValues.TAG, "Error getting product.", exception)
+            }
     }
 
     override fun onDestroyView() {
@@ -111,7 +189,7 @@ class ProductStoreFragment : Fragment() {
                     val weightProduct = weightProduct.text.toString().toFloat()
                     val priceProduct = priceProduct.text.toString().toFloat()
                     val w = Product(productName, weightProduct, priceProduct)
-                    productList.add(w)
+                    productAddList.add(w)
                     productAdapter.notifyDataSetChanged()
                     Toast.makeText(context, "Adding User Information Success", Toast.LENGTH_SHORT)
                         .show()

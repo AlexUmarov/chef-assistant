@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import ru.uao.chef.assistant.MainActivity
 import ru.uao.chef.assistant.R
 import ru.uao.chef.assistant.ui.product.data.Product
 
-class ProductAdapter(val c:Context, val productList:ArrayList<Product>):RecyclerView.Adapter<ProductAdapter.WorkoutViewHolder>()
+class ProductAdapter(val c:Context, val productAddList:ArrayList<Product>,
+                     val productDeleteList:ArrayList<Product>):RecyclerView.Adapter<ProductAdapter.WorkoutViewHolder>()
 {
     inner class WorkoutViewHolder(v:View):RecyclerView.ViewHolder(v){
         var productName:TextView = v.findViewById(R.id.productNameInfo)
@@ -25,7 +25,7 @@ class ProductAdapter(val c:Context, val productList:ArrayList<Product>):Recycler
         }
 
         private fun popupMenus(v:View) {
-            val position = productList[adapterPosition]
+            val position = productAddList[adapterPosition]
             val popupMenus = PopupMenu(c,v)
             popupMenus.inflate(R.menu.show_menu)
             popupMenus.setOnMenuItemClickListener {
@@ -66,7 +66,8 @@ class ProductAdapter(val c:Context, val productList:ArrayList<Product>):Recycler
                             .setMessage("Are you sure delete this Information")
                             .setPositiveButton("Yes"){
                                     dialog,_->
-                                productList.removeAt(adapterPosition)
+                                productDeleteList.add(productAddList[adapterPosition])
+                                productAddList.removeAt(adapterPosition)
                                 notifyDataSetChanged()
                                 Toast.makeText(c,"Deleted this Information",Toast.LENGTH_SHORT).show()
                                 dialog.dismiss()
@@ -100,13 +101,13 @@ class ProductAdapter(val c:Context, val productList:ArrayList<Product>):Recycler
     }
 
     override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
-        val newList = productList[position]
+        val newList = productAddList[position]
         holder.productName.text = newList.productName
         holder.weightProduct.text = newList.productWeight.toString()
         holder.priceProduct.text = newList.productPrice.toString()
     }
 
     override fun getItemCount(): Int {
-        return  productList.size
+        return  productAddList.size
     }
 }

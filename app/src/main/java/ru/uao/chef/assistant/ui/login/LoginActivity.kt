@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -22,15 +21,14 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import ru.uao.chef.assistant.MainActivity
 import ru.uao.chef.assistant.R
-import ru.uao.chef.assistant.ui.login.PreferenceHelper.clearValues
 import ru.uao.chef.assistant.ui.login.PreferenceHelper.customPreference
+import ru.uao.chef.assistant.ui.login.PreferenceHelper.clearValues
 import ru.uao.chef.assistant.ui.login.PreferenceHelper.password
 import ru.uao.chef.assistant.ui.login.PreferenceHelper.userEmail
 
 
 class LoginActivity: AppCompatActivity() {
 
-    //private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private lateinit var prefs: SharedPreferences
     val CUSTOM_PREF_NAME = "User_data"
@@ -183,8 +181,6 @@ object PreferenceHelper {
 
     val USER_EMAIL = "USER_EMAIL"
     val USER_PASSWORD = "PASSWORD"
-
-    fun defaultPreference(context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     fun customPreference(context: Context, name: String): SharedPreferences = context.getSharedPreferences(name, Context.MODE_PRIVATE)
 
