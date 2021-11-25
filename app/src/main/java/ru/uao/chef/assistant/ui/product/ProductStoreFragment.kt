@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import ru.uao.chef.assistant.MainActivity
 import ru.uao.chef.assistant.R
 import ru.uao.chef.assistant.databinding.FragmentProductStoreBinding
 import ru.uao.chef.assistant.ui.product.data.Product
@@ -29,6 +31,7 @@ class ProductStoreFragment : Fragment() {
     private var _binding: FragmentProductStoreBinding? = null
 
     private lateinit var addProductBtn: FloatingActionButton
+    private lateinit var saveBtn: Button
     private lateinit var productList: ArrayList<Product>
     private lateinit var productAdapter: ProductAdapter
     private lateinit var recv: RecyclerView
@@ -36,7 +39,12 @@ class ProductStoreFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+    companion object {
 
+        fun saveData(context: Context){
+            Toast.makeText(context,"saveData", Toast.LENGTH_SHORT).show()
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -54,12 +62,18 @@ class ProductStoreFragment : Fragment() {
         })*/
 
         addProductBtn = binding.addingProductBtn
+        saveBtn = binding.BtnSave
         productList = ArrayList()
         recv = binding.mRecycler
         productAdapter = ProductAdapter(root.context, productList)
         recv.layoutManager = LinearLayoutManager(root.context)
         recv.adapter = productAdapter
-        addProductBtn.setOnClickListener { addProduct(root.context) }
+        addProductBtn.setOnClickListener {
+            addProduct(root.context)
+        }
+        saveBtn.setOnClickListener {
+
+        }
 
         return root
     }

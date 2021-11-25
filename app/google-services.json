@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "648176557204",
+    "project_id": "chef-assistant-2d55a",
+    "storage_bucket": "chef-assistant-2d55a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648176557204:android:7db59a98fc43a37438a881",
+        "android_client_info": {
+          "package_name": "ru.uao.chef.assistant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648176557204-ntkocmv73vgv73lktu6le3gacvoq3934.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPq4URaWDp5xMMPJYrXKGrxBcbNfvAVfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648176557204-ntkocmv73vgv73lktu6le3gacvoq3934.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

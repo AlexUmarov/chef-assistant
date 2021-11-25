@@ -7,12 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
+import ru.uao.chef.assistant.MainActivity
 import ru.uao.chef.assistant.R
 import ru.uao.chef.assistant.ui.product.data.Product
 
 class ProductAdapter(val c:Context, val productList:ArrayList<Product>):RecyclerView.Adapter<ProductAdapter.WorkoutViewHolder>()
 {
-    inner class WorkoutViewHolder(  v:View):RecyclerView.ViewHolder(v){
+    inner class WorkoutViewHolder(v:View):RecyclerView.ViewHolder(v){
         var productName:TextView = v.findViewById(R.id.productNameInfo)
         var weightProduct:TextView = v.findViewById(R.id.weightProductInfo)
         var priceProduct:TextView = v.findViewById(R.id.priceProductInfo)
@@ -44,12 +45,8 @@ class ProductAdapter(val c:Context, val productList:ArrayList<Product>):Recycler
                                 position.productName = productName.text.toString()
                                 position.productWeight = weightProduct.text.toString().toFloat()
                                 position.productPrice = priceProduct.text.toString().toFloat()
-
                                 notifyDataSetChanged()
-                                Toast.makeText(c,"User Information is Edited",Toast.LENGTH_SHORT).show()
-
                                 dialog.dismiss()
-
                             }
                             .setNegativeButton("Cancel"){
                                     dialog,_->
