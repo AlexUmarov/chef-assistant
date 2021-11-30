@@ -28,17 +28,20 @@ import ru.uao.chef.assistant.ui.product.data.Product
 import ru.uao.chef.assistant.ui.product.view.ProductAdapter
 import kotlin.collections.ArrayList
 
-class ProductStoreFragment : Fragment() {
+class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
 
     //private lateinit var productStoreViewModel: ProductStoreViewModel
     private var _binding: FragmentProductStoreBinding? = null
 
     private lateinit var addProductBtn: FloatingActionButton
     private lateinit var saveBtn: Button
+    private lateinit var productList: ArrayList<Product>
+    private lateinit var productNewList: ArrayList<Product>
     private lateinit var productDeleteList: ArrayList<Product>
-    private lateinit var productAddList: ArrayList<Product>
     private lateinit var productAdapter: ProductAdapter
     private lateinit var recv: RecyclerView
+
+    private lateinit var ctx: Context
 
     private lateinit var auth: FirebaseAuth
     private var fireBase = Firebase.firestore
@@ -46,12 +49,12 @@ class ProductStoreFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    companion object {
+    /*companion object {
 
         fun saveData(context: Context){
             Toast.makeText(context,"saveData", Toast.LENGTH_SHORT).show()
         }
-    }
+    }*/
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -62,6 +65,7 @@ class ProductStoreFragment : Fragment() {
 
         _binding = FragmentProductStoreBinding.inflate(inflater, container, false)
         val root: View = binding.root
+        ctx = root.context
 
         /*val textView: TextView = binding.textSlideshow
         productStoreViewModel.text.observe(viewLifecycleOwner, Observer {
@@ -74,10 +78,12 @@ class ProductStoreFragment : Fragment() {
 
         addProductBtn = binding.addingProductBtn
         saveBtn = binding.BtnSave
-        productAddList = ArrayList()
+        productList = ArrayList()
+        productNewList = ArrayList()
         productDeleteList = ArrayList()
         recv = binding.mRecycler
-        productAdapter = ProductAdapter(root.context, productAddList, productDeleteList)
+        productAdapter = ProductAdapter(root.context, productList, productDeleteList, this)
+
         recv.layoutManager = LinearLayoutManager(root.context)
         recv.adapter = productAdapter
         getWorkoutInfo()
@@ -89,6 +95,29 @@ class ProductStoreFragment : Fragment() {
         }
 
         return root
+    }
+
+    override fun onItemClick(position: Int) {
+        Toast.makeText(
+            context, "productList ${productList[position].productName} !",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        val inflter = LayoutInflater.from(ctx)
+        val v = inflter.inflate(R.layout.add_product_item_to_cart, null)
+        val addDialog = AlertDialog.Builder(ctx)
+        addDialog.setView(v)
+        addDialog.setPositiveButton("Ok") { dialog, _ ->
+            dialog.dismiss()
+        }
+        addDialog.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+            Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show()
+
+        }
+        addDialog.create()
+        addDialog.show()
+
     }
 
     private fun saveWorkoutInfo(context: Context) {
@@ -112,9 +141,8 @@ class ProductStoreFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-            productDeleteList.clear()
         }
-        productAddList.forEach {
+        productNewList.forEach {
             fireBase.collection(auth.currentUser?.email.toString())
                 .document("ProductStore")
                 .collection("current")
@@ -133,6 +161,8 @@ class ProductStoreFragment : Fragment() {
                     ).show()
                 }
         }
+        productDeleteList.clear()
+        productNewList.clear()
     }
 
     private fun getWorkoutInfo() {
@@ -141,13 +171,13 @@ class ProductStoreFragment : Fragment() {
             .collection("current")
             .get()
             .addOnSuccessListener { result ->
-                productAddList.clear()
+                productList.clear()
                 productDeleteList.clear()
                 for (document in result) {
                     val w = Product(document.data["productName"].toString(),
                         document.data["productWeight"].toString().toFloat(),
                         document.data["productPrice"].toString().toFloat())
-                    productAddList.add(w)
+                    productList.add(w)
                 }
                 productAdapter.notifyDataSetChanged()
             }
@@ -189,10 +219,12 @@ class ProductStoreFragment : Fragment() {
                     val weightProduct = weightProduct.text.toString().toFloat()
                     val priceProduct = priceProduct.text.toString().toFloat()
                     val w = Product(productName, weightProduct, priceProduct)
-                    productAddList.add(w)
+                    productNewList.add(w)
+                    productList.add(w)
                     productAdapter.notifyDataSetChanged()
                     Toast.makeText(context, "Adding User Information Success", Toast.LENGTH_SHORT)
                         .show()
+                    saveWorkoutInfo(context)
                     dialog.dismiss()
                 }
             }

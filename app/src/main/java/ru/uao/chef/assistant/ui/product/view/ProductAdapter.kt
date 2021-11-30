@@ -10,22 +10,38 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.uao.chef.assistant.R
 import ru.uao.chef.assistant.ui.product.data.Product
 
-class ProductAdapter(val c:Context, val productAddList:ArrayList<Product>,
-                     val productDeleteList:ArrayList<Product>):RecyclerView.Adapter<ProductAdapter.WorkoutViewHolder>()
-{
-    inner class WorkoutViewHolder(v:View):RecyclerView.ViewHolder(v){
-        var productName:TextView = v.findViewById(R.id.productNameInfo)
-        var weightProduct:TextView = v.findViewById(R.id.weightProductInfo)
-        var priceProduct:TextView = v.findViewById(R.id.priceProductInfo)
 
-        var mMenus:ImageView = v.findViewById(R.id.mMenus)
+class ProductAdapter(private val c:Context,
+                     private val productList:ArrayList<Product>,
+                     private val productDeleteList:ArrayList<Product>,
+                     private val listener: OnItemClickListener
+):RecyclerView.Adapter<ProductAdapter.ProductViewHolder>()
+{
+    interface OnItemClickListener{
+        fun onItemClick(position: Int)
+    }
+
+    inner class ProductViewHolder(itemView:View):RecyclerView.ViewHolder(itemView), View.OnClickListener{
+        var productName:TextView = itemView.findViewById(R.id.productNameInfo)
+        var weightProduct:TextView = itemView.findViewById(R.id.weightProductInfo)
+        var priceProduct:TextView = itemView.findViewById(R.id.priceProductInfo)
+
+        var mMenus:ImageView = itemView.findViewById(R.id.mMenus)
 
         init {
             mMenus.setOnClickListener { popupMenus(it) }
+            itemView.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+            val position: Int = adapterPosition
+            if(position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(position)
+            }
         }
 
         private fun popupMenus(v:View) {
-            val position = productAddList[adapterPosition]
+            val position = productList[adapterPosition]
             val popupMenus = PopupMenu(c,v)
             popupMenus.inflate(R.menu.show_menu)
             popupMenus.setOnMenuItemClickListener {
@@ -66,8 +82,8 @@ class ProductAdapter(val c:Context, val productAddList:ArrayList<Product>,
                             .setMessage("Are you sure delete this Information")
                             .setPositiveButton("Yes"){
                                     dialog,_->
-                                productDeleteList.add(productAddList[adapterPosition])
-                                productAddList.removeAt(adapterPosition)
+                                productDeleteList.add(productList[adapterPosition])
+                                productList.removeAt(adapterPosition)
                                 notifyDataSetChanged()
                                 Toast.makeText(c,"Deleted this Information",Toast.LENGTH_SHORT).show()
                                 dialog.dismiss()
@@ -94,20 +110,22 @@ class ProductAdapter(val c:Context, val productAddList:ArrayList<Product>,
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkoutViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val v  = inflater.inflate(R.layout.list_product_item,parent,false)
-        return WorkoutViewHolder(v)
+        return ProductViewHolder(v)
     }
 
-    override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
-        val newList = productAddList[position]
-        holder.productName.text = newList.productName
-        holder.weightProduct.text = newList.productWeight.toString()
-        holder.priceProduct.text = newList.productPrice.toString()
+    override fun  onBindViewHolder(holder: ProductViewHolder, position: Int) {
+        val product = productList[position]
+        holder.productName.text = product.productName
+        holder.weightProduct.text = product.productWeight.toString()
+        holder.priceProduct.text = product.productPrice.toString()
+
+
     }
 
     override fun getItemCount(): Int {
-        return  productAddList.size
+        return  productList.size
     }
 }

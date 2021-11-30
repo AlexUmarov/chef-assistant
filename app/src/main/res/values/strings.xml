@@ -26,4 +26,6 @@
     <string name="productNameInfo">productNameInfo</string>
     <string name="addProduct">add product</string>
     <string name="btn_save_text">save</string>
+    <string name="productNameText">Product</string>
+    <string name="weightProductText">weight:</string>
 </resources>
