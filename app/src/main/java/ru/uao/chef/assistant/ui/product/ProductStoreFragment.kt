@@ -10,9 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,103 +25,153 @@ import ru.uao.chef.assistant.databinding.FragmentProductStoreBinding
 import ru.uao.chef.assistant.ui.product.data.Product
 import ru.uao.chef.assistant.ui.product.view.ProductAdapter
 import kotlin.collections.ArrayList
+import android.widget.Spinner
+import android.widget.ArrayAdapter
+import ru.uao.chef.assistant.ui.home.data.Recipe
+
 
 class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
 
-    //private lateinit var productStoreViewModel: ProductStoreViewModel
     private var _binding: FragmentProductStoreBinding? = null
-
     private lateinit var addProductBtn: FloatingActionButton
+    private lateinit var imageButtonCart: ImageButton
     private lateinit var saveBtn: Button
     private lateinit var productList: ArrayList<Product>
     private lateinit var productNewList: ArrayList<Product>
     private lateinit var productDeleteList: ArrayList<Product>
+    private lateinit var recipeList: ArrayList<String>
     private lateinit var productAdapter: ProductAdapter
+    private lateinit var cartTV: TextView
     private lateinit var recv: RecyclerView
-
     private lateinit var ctx: Context
 
     private lateinit var auth: FirebaseAuth
     private var fireBase = Firebase.firestore
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
-    /*companion object {
 
-        fun saveData(context: Context){
-            Toast.makeText(context,"saveData", Toast.LENGTH_SHORT).show()
-        }
-    }*/
+    private lateinit var cartList: ArrayList<Product>
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        //productStoreViewModel =
-         //   ViewModelProvider(this).get(ProductStoreViewModel::class.java)
-
         _binding = FragmentProductStoreBinding.inflate(inflater, container, false)
         val root: View = binding.root
         ctx = root.context
 
-        /*val textView: TextView = binding.textSlideshow
-        productStoreViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })*/
-
         FirebaseApp.initializeApp(root.context)
         auth = FirebaseAuth.getInstance()
 
-
+        cartTV = binding.cartTV
         addProductBtn = binding.addingProductBtn
+        imageButtonCart = binding.imageButtonCart
         saveBtn = binding.BtnSave
         productList = ArrayList()
         productNewList = ArrayList()
         productDeleteList = ArrayList()
+        recipeList = ArrayList()
+        cartList = ArrayList()
         recv = binding.mRecycler
         productAdapter = ProductAdapter(root.context, productList, productDeleteList, this)
 
         recv.layoutManager = LinearLayoutManager(root.context)
         recv.adapter = productAdapter
-        getWorkoutInfo()
+        getProductInfo()
+        getRecipeInfo()
         addProductBtn.setOnClickListener {
-            addProduct(root.context)
+            addProduct()
         }
         saveBtn.setOnClickListener {
-            saveWorkoutInfo(root.context)
+            saveProductInfo()
+        }
+
+        imageButtonCart.setOnClickListener{
+            /*val manager: FragmentManager = childFragmentManager
+            val transaction: FragmentTransaction = manager.beginTransaction()
+            transaction.replace(R.id.nav_view, HomeFragment())
+            transaction.commit()*/
         }
 
         return root
     }
 
     override fun onItemClick(position: Int) {
-        Toast.makeText(
-            context, "productList ${productList[position].productName} !",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        val inflter = LayoutInflater.from(ctx)
-        val v = inflter.inflate(R.layout.add_product_item_to_cart, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.add_product_item_to_cart, null)
+        var tv: TextView = view.findViewById<EditText>(R.id.cartNameItem)
+        tv.text = productList[position].productName
+        val spinnerRecipe: Spinner = view.findViewById(R.id.spinnerRecipe)
+        val adapter = ArrayAdapter(ctx,
+            android.R.layout.simple_spinner_item, recipeList)
+        spinnerRecipe.adapter = adapter
         val addDialog = AlertDialog.Builder(ctx)
-        addDialog.setView(v)
+        addDialog.setView(view)
         addDialog.setPositiveButton("Ok") { dialog, _ ->
+            var cartView = cartTV.text.toString().toFloat()
+            val weightProduct = view.findViewById<EditText>(R.id.cartWeightProduct).text.toString().toFloat()
+            val selectedItem = spinnerRecipe.selectedItem.toString()
+            var product = productList[position]
+            if(product.productWeight == weightProduct){
+                cartTV.text = (cartView + product.productPrice).toString()
+                saveCartList(selectedItem, product, cartTV.text.toString())
+            }else{
+                var weightSelected = (weightProduct / product.productWeight) * 100
+                var price = product.productPrice * (weightSelected/100)
+                product.productWeight = weightProduct
+                product.productPrice = price
+                cartTV.text = (cartView + price).toString()
+
+                saveCartList(selectedItem, product, cartTV.text.toString())
+            }
             dialog.dismiss()
         }
         addDialog.setNegativeButton("Cancel") { dialog, _ ->
             dialog.dismiss()
-            Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show()
-
         }
         addDialog.create()
         addDialog.show()
-
     }
 
-    private fun saveWorkoutInfo(context: Context) {
-        hideKeyboard()
+    private fun getRecipeInfo(){
+        fireBase.collection(auth.currentUser?.email.toString())
+            .document("RecipeStore")
+            .collection("current")
+            .get()
+            .addOnSuccessListener { result ->
+                recipeList.clear()
+                for (document in result) {
+                    recipeList.add(document.data["recipeName"].toString())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(ContentValues.TAG, "Error getting product.", exception)
+            }
+    }
 
-        productDeleteList?.forEach {
+    private fun saveCartList(selectedItem: String, product: Product, cost: String){
+        fireBase.collection(auth.currentUser?.email.toString())
+            .document("RecipeStore")
+            .collection("current")
+            .document(selectedItem)
+            .set(product)
+            .addOnSuccessListener { documentReference ->
+                Toast.makeText(
+                    context, "Add product: ${product.productName}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    context, "Error adding product: $e",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    private fun saveProductInfo() {
+        hideKeyboard()
+        productDeleteList.forEach {
             fireBase.collection(auth.currentUser?.email.toString())
                 .document("ProductStore")
                 .collection("current")
@@ -165,7 +213,8 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
         productNewList.clear()
     }
 
-    private fun getWorkoutInfo() {
+    @SuppressLint("NotifyDataSetChanged")
+    private fun getProductInfo() {
         fireBase.collection(auth.currentUser?.email.toString())
             .document("ProductStore")
             .collection("current")
@@ -192,7 +241,7 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun addProduct(context: Context) {
+    private fun addProduct() {
         hideKeyboard()
         val inflter = LayoutInflater.from(context)
         val v = inflter.inflate(R.layout.add_product_item, null)
@@ -200,7 +249,7 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
         val weightProduct = v.findViewById<EditText>(R.id.weightProduct)
         val priceProduct = v.findViewById<EditText>(R.id.priceProduct)
 
-        val addDialog = AlertDialog.Builder(context)
+        val addDialog = AlertDialog.Builder(ctx)
 
         addDialog.setView(v)
         addDialog.setPositiveButton("Ok") { dialog, _ ->
@@ -218,21 +267,17 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
                     val productName = productName.text.toString()
                     val weightProduct = weightProduct.text.toString().toFloat()
                     val priceProduct = priceProduct.text.toString().toFloat()
-                    val w = Product(productName, weightProduct, priceProduct)
-                    productNewList.add(w)
-                    productList.add(w)
+                    val product = Product(productName, weightProduct, priceProduct)
+                    productNewList.add(product)
+                    productList.add(product)
                     productAdapter.notifyDataSetChanged()
-                    Toast.makeText(context, "Adding User Information Success", Toast.LENGTH_SHORT)
-                        .show()
-                    saveWorkoutInfo(context)
+                    saveProductInfo()
                     dialog.dismiss()
                 }
             }
         }
         addDialog.setNegativeButton("Cancel") { dialog, _ ->
             dialog.dismiss()
-            Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show()
-
         }
         addDialog.create()
         addDialog.show()

@@ -16,7 +16,6 @@
 
 
         <TextView
-            android:id="@+id/cartNameItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -24,34 +23,28 @@
             android:elevation="15dp"
             android:gravity="center"
             android:padding="10dp"
-            android:text="@string/addProductInfoInfo"
+            android:text="@string/addRecipeInfo"
             android:textColor="@color/white"
             android:textSize="19sp"
             android:textStyle="bold" />
 
-        <Spinner
-            android:id="@+id/spinnerRecipe"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="32dp" />
-
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/cartWeightProductText"
+            android:id="@+id/recipeNameText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="32dp"
-            android:hint="@string/setWeightProduct">
+            android:hint="@string/recipeNameHint">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/cartWeightProduct"
+                android:id="@+id/recipeName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal|numberSigned"/>
+                android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
+
+
 
     </LinearLayout>
 </LinearLayout>

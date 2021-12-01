@@ -12,7 +12,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import ru.uao.chef.assistant.databinding.ActivityMainBinding
+import ru.uao.chef.assistant.ui.home.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        //replaceFragment(HomeFragment())
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -56,7 +59,11 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    fun saveData(){
-        Toast.makeText(binding.root.context,"saveData", Toast.LENGTH_SHORT).show()
-    }
+    /*fun AppCompatActivity.replaceFragment(fragment: Fragment){
+        val fragmentManager = supportFragmentManager
+        val transaction = fragmentManager.beginTransaction()
+        transaction.replace(R.id.,fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }*/
 }

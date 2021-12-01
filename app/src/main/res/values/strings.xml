@@ -28,4 +28,8 @@
     <string name="btn_save_text">save</string>
     <string name="productNameText">Product</string>
     <string name="weightProductText">weight:</string>
+    <string name="addRecipeInfo">recipe</string>
+    <string name="recipeNameHint">recipe</string>
+    <string name="recipeNameInfo">recipe</string>
+    <string name="costProductText">cost</string>
 </resources>
