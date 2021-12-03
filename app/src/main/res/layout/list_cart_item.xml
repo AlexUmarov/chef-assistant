@@ -23,8 +23,8 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/recipeNameInfo"
-            android:text="@string/recipeNameInfo"
+            android:id="@+id/productNameInfo"
+            android:text="@string/productNameInfo"
             android:textColor="@color/black"
             android:textSize="19sp"
             android:textStyle="bold"
@@ -38,20 +38,39 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/costText"
+                android:id="@+id/weightProductText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="15sp"
-                android:text="@string/costProductText" />
+                android:text="@string/weightProductText" />
 
             <TextView
-                android:id="@+id/costRecipeInfo"
+                android:id="@+id/weightProductInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
-                android:text=""
+                android:textColor="@android:color/darker_gray"
+                android:textSize="15sp"
+                android:text="0.0"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/priceProductText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:text="price: "
+                android:textColor="@android:color/darker_gray"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/priceProductInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                android:text="0.0"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -59,13 +78,7 @@
         </LinearLayout>
 
     </LinearLayout>
-        <ImageView
-            android:id="@+id/mMenus"
-            android:src="@drawable/ic_more"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:layout_width="40dp"
-            android:layout_height="40dp"/>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

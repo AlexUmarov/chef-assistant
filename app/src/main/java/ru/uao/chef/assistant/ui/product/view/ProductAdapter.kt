@@ -13,12 +13,13 @@ import ru.uao.chef.assistant.ui.product.data.Product
 
 class ProductAdapter(private val c:Context,
                      private val productList:ArrayList<Product>,
-                     private val productDeleteList:ArrayList<Product>,
                      private val listener: OnItemClickListener
 ):RecyclerView.Adapter<ProductAdapter.ProductViewHolder>()
 {
     interface OnItemClickListener{
         fun onItemClick(position: Int)
+        fun onItemEditOkClick(product: Product)
+        fun onItemDeleteOkClick(product: Product)
     }
 
     inner class ProductViewHolder(itemView:View):RecyclerView.ViewHolder(itemView), View.OnClickListener{
@@ -41,7 +42,7 @@ class ProductAdapter(private val c:Context,
         }
 
         private fun popupMenus(v:View) {
-            val position = productList[adapterPosition]
+            val product = productList[adapterPosition]
             val popupMenus = PopupMenu(c,v)
             popupMenus.inflate(R.menu.show_menu)
             popupMenus.setOnMenuItemClickListener {
@@ -49,18 +50,19 @@ class ProductAdapter(private val c:Context,
                     R.id.editText->{
                         val viewSource = LayoutInflater.from(c).inflate(R.layout.add_product_item,null)
                         val productName = viewSource.findViewById<EditText>(R.id.productName)
-                        productName.setText(position.productName)
+                        productName.setText(product.productName)
                         val weightProduct = viewSource.findViewById<EditText>(R.id.weightProduct)
-                        weightProduct.setText(position.productWeight.toString())
+                        weightProduct.setText(product.productWeight.toString())
                         val priceProduct = viewSource.findViewById<EditText>(R.id.priceProduct)
-                        priceProduct.setText(position.productPrice.toString())
+                        priceProduct.setText(product.productPrice.toString())
                         AlertDialog.Builder(c)
                             .setView(viewSource)
                             .setPositiveButton("Ok"){
                                     dialog,_->
-                                position.productName = productName.text.toString()
-                                position.productWeight = weightProduct.text.toString().toFloat()
-                                position.productPrice = priceProduct.text.toString().toFloat()
+                                product.productName = productName.text.toString()
+                                product.productWeight = weightProduct.text.toString().toFloat()
+                                product.productPrice = priceProduct.text.toString().toFloat()
+                                listener.onItemEditOkClick(product)
                                 notifyDataSetChanged()
                                 dialog.dismiss()
                             }
@@ -82,8 +84,8 @@ class ProductAdapter(private val c:Context,
                             .setMessage("Are you sure delete this Information")
                             .setPositiveButton("Yes"){
                                     dialog,_->
-                                productDeleteList.add(productList[adapterPosition])
                                 productList.removeAt(adapterPosition)
+                                listener.onItemDeleteOkClick(product)
                                 notifyDataSetChanged()
                                 Toast.makeText(c,"Deleted this Information",Toast.LENGTH_SHORT).show()
                                 dialog.dismiss()

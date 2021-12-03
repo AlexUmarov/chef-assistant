@@ -27,6 +27,7 @@ import ru.uao.chef.assistant.ui.product.view.ProductAdapter
 import kotlin.collections.ArrayList
 import android.widget.Spinner
 import android.widget.ArrayAdapter
+import ru.uao.chef.assistant.ui.cart.data.Cart
 import ru.uao.chef.assistant.ui.home.data.Recipe
 
 
@@ -35,22 +36,20 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
     private var _binding: FragmentProductStoreBinding? = null
     private lateinit var addProductBtn: FloatingActionButton
     private lateinit var imageButtonCart: ImageButton
-    private lateinit var saveBtn: Button
     private lateinit var productList: ArrayList<Product>
     private lateinit var productNewList: ArrayList<Product>
     private lateinit var productDeleteList: ArrayList<Product>
-    private lateinit var recipeList: ArrayList<String>
+    private lateinit var cartList: ArrayList<Cart>
+    private lateinit var currentCart: Cart
     private lateinit var productAdapter: ProductAdapter
     private lateinit var cartTV: TextView
     private lateinit var recv: RecyclerView
-    private lateinit var ctx: Context
 
+    private lateinit var ctx: Context
     private lateinit var auth: FirebaseAuth
     private var fireBase = Firebase.firestore
 
     private val binding get() = _binding!!
-
-    private lateinit var cartList: ArrayList<Product>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,27 +63,26 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
         FirebaseApp.initializeApp(root.context)
         auth = FirebaseAuth.getInstance()
 
-        cartTV = binding.cartTV
+        cartTV = binding.cartCostTV
         addProductBtn = binding.addingProductBtn
         imageButtonCart = binding.imageButtonCart
-        saveBtn = binding.BtnSave
         productList = ArrayList()
         productNewList = ArrayList()
         productDeleteList = ArrayList()
-        recipeList = ArrayList()
         cartList = ArrayList()
-        recv = binding.mRecycler
-        productAdapter = ProductAdapter(root.context, productList, productDeleteList, this)
+        getCartInfo()
+        currentCart = Cart("current", 0.0F, ArrayList())
+        cartTV.text = currentCart.getTotalCostProduct().toString()
+
+        recv = binding.recyclerProductList
+        productAdapter = ProductAdapter(root.context, productList, this)
 
         recv.layoutManager = LinearLayoutManager(root.context)
         recv.adapter = productAdapter
         getProductInfo()
-        getRecipeInfo()
+
         addProductBtn.setOnClickListener {
             addProduct()
-        }
-        saveBtn.setOnClickListener {
-            saveProductInfo()
         }
 
         imageButtonCart.setOnClickListener{
@@ -99,30 +97,25 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
 
     override fun onItemClick(position: Int) {
         val view = LayoutInflater.from(context).inflate(R.layout.add_product_item_to_cart, null)
-        var tv: TextView = view.findViewById<EditText>(R.id.cartNameItem)
-        tv.text = productList[position].productName
-        val spinnerRecipe: Spinner = view.findViewById(R.id.spinnerRecipe)
-        val adapter = ArrayAdapter(ctx,
-            android.R.layout.simple_spinner_item, recipeList)
-        spinnerRecipe.adapter = adapter
+        var tvCartNameItem: TextView = view.findViewById<EditText>(R.id.cartNameItem)
+        tvCartNameItem.text = productList[position].productName
+        cartTV.text = currentCart.getTotalCostProduct().toString()
+
         val addDialog = AlertDialog.Builder(ctx)
         addDialog.setView(view)
         addDialog.setPositiveButton("Ok") { dialog, _ ->
-            var cartView = cartTV.text.toString().toFloat()
             val weightProduct = view.findViewById<EditText>(R.id.cartWeightProduct).text.toString().toFloat()
-            val selectedItem = spinnerRecipe.selectedItem.toString()
             var product = productList[position]
             if(product.productWeight == weightProduct){
-                cartTV.text = (cartView + product.productPrice).toString()
-                saveCartList(selectedItem, product, cartTV.text.toString())
+                saveCartList(product)
+                cartTV.text = currentCart.getTotalCostProduct().toString()
             }else{
                 var weightSelected = (weightProduct / product.productWeight) * 100
                 var price = product.productPrice * (weightSelected/100)
                 product.productWeight = weightProduct
                 product.productPrice = price
-                cartTV.text = (cartView + price).toString()
-
-                saveCartList(selectedItem, product, cartTV.text.toString())
+                saveCartList(product)
+                cartTV.text = currentCart.getTotalCostProduct().toString()
             }
             dialog.dismiss()
         }
@@ -133,27 +126,12 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
         addDialog.show()
     }
 
-    private fun getRecipeInfo(){
+    override fun onItemEditOkClick(product: Product) {
+        hideKeyboard()
         fireBase.collection(auth.currentUser?.email.toString())
-            .document("RecipeStore")
+            .document("ProductStore")
             .collection("current")
-            .get()
-            .addOnSuccessListener { result ->
-                recipeList.clear()
-                for (document in result) {
-                    recipeList.add(document.data["recipeName"].toString())
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w(ContentValues.TAG, "Error getting product.", exception)
-            }
-    }
-
-    private fun saveCartList(selectedItem: String, product: Product, cost: String){
-        fireBase.collection(auth.currentUser?.email.toString())
-            .document("RecipeStore")
-            .collection("current")
-            .document(selectedItem)
+            .document(product.productName)
             .set(product)
             .addOnSuccessListener { documentReference ->
                 Toast.makeText(
@@ -169,48 +147,77 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
             }
     }
 
-    private fun saveProductInfo() {
+    override fun onItemDeleteOkClick(product: Product) {
         hideKeyboard()
-        productDeleteList.forEach {
-            fireBase.collection(auth.currentUser?.email.toString())
-                .document("ProductStore")
-                .collection("current")
-                .document(it.productName)
-                .delete()
-                .addOnSuccessListener { documentReference ->
-                    Toast.makeText(
-                        context, "Document ${it.productName} successfully deleted!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+        fireBase.collection(auth.currentUser?.email.toString())
+            .document("ProductStore")
+            .collection("current")
+            .document(product.productName)
+            .delete()
+            .addOnSuccessListener { documentReference ->
+                Toast.makeText(
+                    context, "Document ${product.productName} successfully deleted!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { documentReference ->
+                Toast.makeText(
+                    context, "Error deleting document ${product.productName}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    private fun getCartInfo(){
+        fireBase.collection(auth.currentUser?.email.toString())
+            .document("CartStore")
+            .get()
+            .addOnSuccessListener { documentReference ->
+                currentCart.cartName = documentReference.data?.get("cartName").toString()
+                var products = ArrayList<Product>()
+                var p = documentReference.data?.get("products") as ArrayList<*>
+                for (i in p.indices){
+                    var p = p[i] as HashMap<*, *>
+                    products.add(Product(p["productName"].toString(),
+                        p["productWeight"].toString().toFloat(),
+                        p["productPrice"].toString().toFloat(),
+                    ))
                 }
-                .addOnFailureListener { documentReference ->
-                    Toast.makeText(
-                        context, "Error deleting document ${it.productName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                currentCart.products = products
+
+            }
+            .addOnFailureListener { exception ->
+                Log.w(ContentValues.TAG, "Error getting product.", exception)
+            }
+    }
+
+    private fun saveCartList(product: Product){
+        var isReplaced = false
+        for(i in currentCart.products.indices){
+            if (currentCart.products[i].productName == product.productName) {
+                currentCart.products[i] = product
+                isReplaced = true
+            }
         }
-        productNewList.forEach {
-            fireBase.collection(auth.currentUser?.email.toString())
-                .document("ProductStore")
-                .collection("current")
-                .document(it.productName)
-                .set(it)
-                .addOnSuccessListener { documentReference ->
-                    Toast.makeText(
-                        context, "Add product: ${it.productName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(
-                        context, "Error adding product: $e",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-        }
-        productDeleteList.clear()
-        productNewList.clear()
+        if(!isReplaced)
+            currentCart.products.add(product)
+        currentCart.cartName = "current"
+        currentCart.totalCost = currentCart.getTotalCostProduct()
+        fireBase.collection(auth.currentUser?.email.toString())
+            .document("CartStore")
+            .set(currentCart)
+            .addOnSuccessListener { documentReference ->
+                Toast.makeText(
+                    context, "Add product: ${currentCart.cartName}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    context, "Error adding product: $e",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -271,7 +278,7 @@ class ProductStoreFragment : Fragment(), ProductAdapter.OnItemClickListener {
                     productNewList.add(product)
                     productList.add(product)
                     productAdapter.notifyDataSetChanged()
-                    saveProductInfo()
+                    onItemEditOkClick(product)
                     dialog.dismiss()
                 }
             }

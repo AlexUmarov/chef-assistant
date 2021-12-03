@@ -1,8 +1,10 @@
 package ru.uao.chef.assistant.ui.home
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import ru.uao.chef.assistant.R
+import ru.uao.chef.assistant.RecipeActivity
 import ru.uao.chef.assistant.databinding.FragmentHomeBinding
 import ru.uao.chef.assistant.ui.home.data.Recipe
 import ru.uao.chef.assistant.ui.home.view.RecipeListAdapter
@@ -60,8 +64,8 @@ class HomeFragment : Fragment(), RecipeListAdapter.OnItemClickListener {
 
         FirebaseApp.initializeApp(root.context)
         auth = FirebaseAuth.getInstance()
-        rvCartList = binding.recyclerCartList
-        addingCartBtn = binding.addingCartBtn
+        rvCartList = binding.recyclerRecipeList
+        addingCartBtn = binding.addingRecipeBtn
         recipeList = ArrayList()
         recipeNewList = ArrayList()
         recipeDeleteList = ArrayList()
@@ -87,7 +91,8 @@ class HomeFragment : Fragment(), RecipeListAdapter.OnItemClickListener {
             .addOnSuccessListener { result ->
                 recipeList.clear()
                 for (document in result) {
-                    val r = Recipe(document.data["recipeName"].toString())
+                    val r = Recipe(document.data["recipeName"].toString(),
+                        document.data["cost"].toString().toFloat(), ArrayList())
                     recipeList.add(r)
                 }
                 recipeListAdapter.notifyDataSetChanged()
@@ -103,17 +108,24 @@ class HomeFragment : Fragment(), RecipeListAdapter.OnItemClickListener {
     }
 
     override fun onItemClick(position: Int) {
-        Toast.makeText(
-            context, "Add product: ${recipeList[position].recipeName}",
-            Toast.LENGTH_SHORT
-        ).show()
+        val intent = Intent(ctx, RecipeActivity::class.java)
+        intent.putExtra("RecipeName", recipeList[position].recipeName);
+        resultLauncher.launch(intent)
+    }
+
+    var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // There are no request codes
+            val data: Intent? = result.data
+            //doSomeOperations()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun addRecipe() {
         val inflter = LayoutInflater.from(context)
         val v = inflter.inflate(R.layout.add_recipe_item, null)
-        val recipeName = v.findViewById<EditText>(R.id.recipeName)
+        val recipeName = v.findViewById<EditText>(R.id.cartName)
 
 
         val addDialog = AlertDialog.Builder(ctx)
@@ -126,7 +138,7 @@ class HomeFragment : Fragment(), RecipeListAdapter.OnItemClickListener {
                 }
                 else -> {
                     val recipeName = recipeName.text.toString()
-                    val recipe = Recipe(recipeName)
+                    val recipe = Recipe(recipeName,  0.0F, ArrayList())
                     recipeNewList.add(recipe)
                     recipeList.add(recipe)
                     recipeListAdapter.notifyDataSetChanged()

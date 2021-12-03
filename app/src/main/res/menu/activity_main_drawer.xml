@@ -15,6 +15,10 @@
         <item
             android:id="@+id/nav_product_store"
             android:icon="?android:attr/actionModeFindDrawable"
-            android:title="@string/menu_produc_store" />
+            android:title="@string/menu_product_store" />
+        <item
+            android:id="@+id/nav_cart_store"
+            android:icon="@android:drawable/ic_menu_delete"
+            android:title="@string/menu_cart_store" />
     </group>
 </menu>

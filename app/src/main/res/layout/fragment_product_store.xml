@@ -15,52 +15,38 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/mRecycler"
+            android:id="@+id/recyclerProductList"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
         </androidx.recyclerview.widget.RecyclerView>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/BtnSave"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="63dp"
-        android:layout_marginBottom="5dp"
-        android:text="@string/btn_save_text"
-        android:textColor="#5D4037"
-        android:textStyle="bold|italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageButtonCart"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="TextContrastCheck" />
-
     <ImageButton
         android:id="@+id/imageButtonCart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
         android:backgroundTint="#0874A6"
+        android:minHeight="48dp"
         android:src="?attr/actionModePasteDrawable"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/cartTV"
-        app:layout_constraintStart_toEndOf="@+id/BtnSave" />
+        app:layout_constraintEnd_toStartOf="@+id/cartCostTV"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <TextView
-        android:id="@+id/cartTV"
+        android:id="@+id/cartCostTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="50dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="15dp"
         android:text="0.0"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/addingProductBtn" />
+        app:layout_constraintStart_toEndOf="@+id/imageButtonCart" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addingProductBtn"
